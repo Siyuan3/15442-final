@@ -10,7 +10,6 @@ latency:
   generate_new_tokens: 128
   warmup_runs: 2
   timed_runs: 5
-  batch_size: 1
 
 gsm8k:
   split: test
