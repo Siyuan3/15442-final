@@ -6,10 +6,7 @@ from datasets import load_dataset
 
 def load_wikitext_text(split: str = "test", subset: str = "wikitext-2-raw-v1") -> str:
     """Concatenate the raw text — used by the sliding-window PPL loop."""
-    ds = load_dataset(subset, split=split) if "/" not in subset else load_dataset("wikitext", subset, split=split)
-    # datasets>=2.14 prefers (path, name) form:
-    if "text" not in ds.column_names:
-        ds = load_dataset("wikitext", subset, split=split)
+    ds = load_dataset("wikitext", subset, split=split)
     return "\n\n".join(t for t in ds["text"] if t.strip())
 
 
