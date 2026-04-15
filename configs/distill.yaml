@@ -1,0 +1,29 @@
+# Logits (KL) distillation config.
+# Standard Hinton KD: L = alpha * KL(student || teacher, T) * T^2 + (1-alpha) * CE
+loss:
+  temperature: 2.0
+  alpha_kd: 0.7          # weight on KL term; (1-alpha) on CE
+  top_k_logits: null     # null = full vocab; set to e.g. 128 for top-k KD
+
+data:
+  dataset: wikitext
+  subset: wikitext-2-raw-v1
+  split: train
+  block_size: 1024       # sequence length for causal LM
+
+train:
+  output_dir: checkpoints/distill-llama32-1b
+  num_train_epochs: 1
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-5
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  bf16: false
+  fp16: true
+  logging_steps: 20
+  save_steps: 500
+  save_total_limit: 2
+  gradient_checkpointing: true
+  teacher_load_in_8bit: true   # save VRAM; teacher is frozen

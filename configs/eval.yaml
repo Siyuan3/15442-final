@@ -1,0 +1,18 @@
+perplexity:
+  dataset: wikitext
+  subset: wikitext-2-raw-v1
+  split: test
+  stride: 512
+  block_size: 1024
+
+latency:
+  prompt_length: 512
+  generate_new_tokens: 128
+  warmup_runs: 2
+  timed_runs: 5
+  batch_size: 1
+
+gsm8k:
+  split: test
+  num_examples: 200      # subset for quick eval; set null for full
+  max_new_tokens: 256
