@@ -23,9 +23,10 @@ plots/          Generated figures
 ## Workflow
 
 - **Local**: edit code in `src/`, commit, push.
-- **Colab**: `git pull`, run the notebook for the current phase.
+- **Colab**: open `notebooks/run.ipynb` once — it mounts Drive, clones/pulls
+  the repo, installs deps, logs in to HF, then invokes each phase's script.
 - Every script writes `results/runs/<timestamp>/metrics.json` with a fixed
-  schema so `notebooks/04_pareto.ipynb` can aggregate without hand-copying.
+  schema so the Phase-4 plot step can aggregate without hand-copying.
 
 ## Phases
 
