@@ -32,8 +32,10 @@ def main():
         quant="int8" if dcfg["train"].get("teacher_load_in_8bit", False) else "none",
         dtype=mcfg["teacher"]["dtype"],
     )
+    # Load student in fp32 master weights; AMP (bf16) handles the forward casts.
+    # Loading in fp16 makes torch.amp refuse to unscale gradients.
     student = load_model(
-        mcfg["student"]["name"], quant="none", dtype=mcfg["student"]["dtype"],
+        mcfg["student"]["name"], quant="none", dtype="float32",
     )
     if dcfg["train"].get("gradient_checkpointing"):
         student.gradient_checkpointing_enable()

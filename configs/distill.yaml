@@ -20,8 +20,8 @@ train:
   lr_scheduler_type: cosine
   warmup_ratio: 0.03
   weight_decay: 0.0
-  bf16: false
-  fp16: true
+  bf16: true     # A100 supports bf16 natively; avoids fp16 grad-unscale issue
+  fp16: false
   logging_steps: 10
   save_steps: 200
   save_total_limit: 1
