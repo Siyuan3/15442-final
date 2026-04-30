@@ -2,7 +2,7 @@
 # Standard Hinton KD: L = alpha * KL(student || teacher, T) * T^2 + (1-alpha) * CE
 loss:
   temperature: 2.0
-  alpha_kd: 0.3          # CE-dominant: protects PPL on short training runs
+  alpha_kd: 0.5          # balanced: v1 (0.7) drifted, v2 (0.3) too CE-only
   top_k_logits: null     # null = full vocab; set to e.g. 128 for top-k KD
 
 data:
@@ -12,18 +12,18 @@ data:
   block_size: 512        # shorter to fit in time budget; PPL eval still uses 1024
 
 train:
-  output_dir: checkpoints/distill-llama32-1b-v2
-  max_steps: 400         # ~400 optimizer steps; deadline-aware override of epochs
+  output_dir: checkpoints/distill-llama32-1b-v3
+  max_steps: 3000         # ~1.5h on A100; 7.5x v2 training budget
   per_device_train_batch_size: 2
   gradient_accumulation_steps: 4
-  learning_rate: 5.0e-6   # gentler LR — 2e-5 over-shot baseline on 1B
+  learning_rate: 5.0e-6   # keep v2's safe LR
   lr_scheduler_type: cosine
-  warmup_ratio: 0.1       # longer warmup for tiny dataset
+  warmup_ratio: 0.05      # 150 step warmup for the longer schedule
   weight_decay: 0.0
   bf16: true     # A100 supports bf16 natively; avoids fp16 grad-unscale issue
   fp16: false
-  logging_steps: 10
-  save_steps: 200
-  save_total_limit: 1
+  logging_steps: 50
+  save_steps: 500
+  save_total_limit: 2
   gradient_checkpointing: true
   teacher_load_in_8bit: true   # save VRAM; teacher is frozen
