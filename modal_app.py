@@ -40,7 +40,7 @@ image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("git")
     .pip_install(
-        "torch==2.4.1",
+        "torch==2.5.1",
         extra_index_url="https://download.pytorch.org/whl/cu121",
     )
     .pip_install_from_requirements("requirements.txt")
