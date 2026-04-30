@@ -75,7 +75,7 @@ def main():
         teacher_model=teacher,
         args=training_args,
         train_dataset=train_ds,
-        tokenizer=tok,
+        processing_class=tok,
         data_collator=DataCollatorForLanguageModeling(tok, mlm=False),
         kd_temperature=dcfg["loss"]["temperature"],
         kd_alpha=dcfg["loss"]["alpha_kd"],
