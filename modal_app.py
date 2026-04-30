@@ -149,8 +149,9 @@ def profile_run(path: str, quant: str = "nf4") -> None:
 
 # ---------------------------------------------------------------------------
 # Extra phase — batch-size sweep for one (role, quant) configuration.
+# Use A100-80GB so 8B fp16 at batch=32 (≈28GB) doesn't OOM.
 # ---------------------------------------------------------------------------
-@app.function(gpu=EVAL_GPU, volumes=VOLUMES, secrets=SECRETS, timeout=3600)
+@app.function(gpu="A100-80GB", volumes=VOLUMES, secrets=SECRETS, timeout=3600)
 def batch_sweep(role: str = "student", quant: str = "none") -> None:
     _setup_env()
     _run(["scripts/06_batch_sweep.py", "--role", role, "--quant", quant])
