@@ -82,8 +82,9 @@ def cmd_plot(args):
     ax.set_ylabel("WikiText-2 Perplexity (lower is better)")
     ax.set_title("Pareto: Perplexity vs Latency")
     ax.grid(alpha=0.3)
-    out = REPO_ROOT / "plots" / "pareto.png"
-    out.parent.mkdir(exist_ok=True)
+    # Write into results/ so the persistent Modal volume captures it.
+    out = REPO_ROOT / "results" / "plots" / "pareto.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     fig.savefig(out, dpi=150)
     print(f"[saved] {out}")
