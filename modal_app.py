@@ -63,9 +63,11 @@ VOLUMES = {
 }
 SECRETS = [modal.Secret.from_name("hf-token")]
 
-# Default GPUs. Phase 3 (distillation) needs more VRAM for teacher+student+grads.
-EVAL_GPU = "L4"          # ~$0.0002/s — fine for any inference / PPL / latency.
-TRAIN_GPU = "A100-40GB"  # ~$0.001/s — needed when 8B teacher + 1B student grads coexist.
+# GPU choice. Use the same GPU for every measurement so the Pareto plot is
+# directly comparable; A100-40GB is the smallest unit that fits the
+# distillation memory footprint (8B teacher + 1B student + grads + optim).
+EVAL_GPU = "A100-40GB"   # all eval / latency measurements
+TRAIN_GPU = "A100-40GB"  # distillation training
 
 app = modal.App(APP_NAME, image=image)
 
