@@ -9,21 +9,21 @@ data:
   dataset: wikitext
   subset: wikitext-2-raw-v1
   split: train
-  block_size: 1024       # sequence length for causal LM
+  block_size: 512        # shorter to fit in time budget; PPL eval still uses 1024
 
 train:
   output_dir: checkpoints/distill-llama32-1b
-  num_train_epochs: 1
+  max_steps: 400         # ~400 optimizer steps; deadline-aware override of epochs
   per_device_train_batch_size: 2
-  gradient_accumulation_steps: 8
+  gradient_accumulation_steps: 4
   learning_rate: 2.0e-5
   lr_scheduler_type: cosine
   warmup_ratio: 0.03
   weight_decay: 0.0
   bf16: false
   fp16: true
-  logging_steps: 20
-  save_steps: 500
-  save_total_limit: 2
+  logging_steps: 10
+  save_steps: 200
+  save_total_limit: 1
   gradient_checkpointing: true
   teacher_load_in_8bit: true   # save VRAM; teacher is frozen

@@ -47,9 +47,8 @@ def main():
     )
 
     t = dcfg["train"]
-    training_args = TrainingArguments(
+    ta_kwargs = dict(
         output_dir=t["output_dir"],
-        num_train_epochs=t["num_train_epochs"],
         per_device_train_batch_size=t["per_device_train_batch_size"],
         gradient_accumulation_steps=t["gradient_accumulation_steps"],
         learning_rate=t["learning_rate"],
@@ -65,6 +64,11 @@ def main():
         report_to=[],
         remove_unused_columns=False,
     )
+    if "max_steps" in t:
+        ta_kwargs["max_steps"] = t["max_steps"]
+    elif "num_train_epochs" in t:
+        ta_kwargs["num_train_epochs"] = t["num_train_epochs"]
+    training_args = TrainingArguments(**ta_kwargs)
 
     trainer = DistillationTrainer(
         model=student,
