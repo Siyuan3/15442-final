@@ -14,11 +14,12 @@ def measure_latency(
     generate_new_tokens: int = 128,
     warmup_runs: int = 2,
     timed_runs: int = 5,
+    batch_size: int = 1,
 ) -> dict:
     device = next(model.parameters()).device
-    # Construct a synthetic prompt of the requested token length.
+    # Construct a synthetic prompt of the requested token length × batch.
     vocab = tokenizer.vocab_size
-    input_ids = torch.randint(0, vocab, (1, prompt_length), device=device)
+    input_ids = torch.randint(0, vocab, (batch_size, prompt_length), device=device)
     attention_mask = torch.ones_like(input_ids)
 
     gen_kwargs = dict(
