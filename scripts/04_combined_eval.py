@@ -20,15 +20,19 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.data.wikitext import load_wikitext_text
-from src.eval.latency import measure_latency
-from src.eval.memory import peak_vram_gb, reset_peak
-from src.eval.perplexity import compute_perplexity
-from src.models.loader import load_model, load_tokenizer
+# Light import for the `plot` subcommand. Heavy deps (torch, transformers,
+# datasets) are imported inside cmd_eval so plotting works locally without
+# them.
 from src.utils import REPO_ROOT, RunContext, load_yaml, new_run_dir, save_metrics
 
 
 def cmd_eval(args):
+    from src.data.wikitext import load_wikitext_text
+    from src.eval.latency import measure_latency
+    from src.eval.memory import peak_vram_gb, reset_peak
+    from src.eval.perplexity import compute_perplexity
+    from src.models.loader import load_model, load_tokenizer
+
     mcfg = load_yaml(args.models_cfg)
     ecfg = load_yaml(args.eval_cfg)
     tok = load_tokenizer(mcfg["tokenizer"]["name"])
