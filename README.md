@@ -12,31 +12,59 @@ perplexity–latency Pareto frontier.
 
 ```
 configs/        YAML configs (models, distill, eval)
-src/            Reusable modules — import from notebooks & scripts
+src/            Reusable modules
 scripts/        CLI entry points, one per phase
-notebooks/      Colab notebooks (call into src/)
+modal_app.py    Modal entrypoint — runs each phase on a hosted GPU
+notebooks/      Colab fallback (run.ipynb)
 results/runs/   Per-run metrics.json (tracked in git)
-checkpoints/    Model checkpoints (gitignored, store on Drive)
+checkpoints/    Model checkpoints (gitignored)
 plots/          Generated figures
 ```
 
-## Workflow
+## Recommended workflow: Modal
 
-- **Local**: edit code in `src/`, commit, push.
-- **Colab**: open `notebooks/run.ipynb` once — it mounts Drive, clones/pulls
-  the repo, installs deps, logs in to HF, then invokes each phase's script.
-- Every script writes `results/runs/<timestamp>/metrics.json` with a fixed
-  schema so the Phase-4 plot step can aggregate without hand-copying.
+Modal gives stable GPUs (no Colab disconnect) and runs scripts directly.
+
+**One-time setup** (locally):
+```bash
+pip install modal
+modal token new                                    # auth
+modal secret create hf-token HF_TOKEN=hf_xxx       # or via the web UI
+```
+
+**Run a phase**:
+```bash
+modal run modal_app.py::baseline_eval --role student
+modal run modal_app.py::baseline_eval --role teacher
+modal run modal_app.py::quantize_eval --role student --quant nf4
+modal run modal_app.py::distill_train
+modal run modal_app.py::combined_eval --path checkpoints/distill-llama32-1b --quant nf4
+modal run modal_app.py::plot_pareto
+modal run modal_app.py::profile_run --path checkpoints/distill-llama32-1b --quant nf4
+```
+
+Phase 1/2/4/5 default to `L4`; Phase 3 (`distill_train`) uses `A100-40GB`.
+
+**Pull results back locally** (so plots and git commits work):
+```bash
+modal volume get llama-results / ./results/
+```
+
+**Inspect runs without downloading**:
+```bash
+modal run modal_app.py::list_runs
+```
 
 ## Phases
 
 1. Baseline PPL + latency for 8B and 1B (no compression).
-2. PTQ with bitsandbytes (8-bit, 4-bit) — measure PPL, VRAM, tokens/sec.
+2. PTQ with bitsandbytes (int8, nf4) — measure PPL, VRAM, tokens/sec.
 3. Logits distillation: 8B teacher → 1B student.
-4. Combined: distilled-1B + 4-bit PTQ. Plot Pareto frontier.
+4. Combined: distilled-1B + nf4. Plot Pareto frontier.
 5. `torch.profiler` — compute vs memory-movement breakdown.
 
-## Setup
+## Colab fallback
 
-See `notebooks/00_setup.ipynb` for the Colab bootstrap (HF login, Drive mount,
-deps). Locally: `pip install -r requirements.txt`.
+If you can't or don't want to use Modal, `notebooks/run.ipynb` does the same
+phases by `!python scripts/<phase>.py` from a Colab session. See the notebook
+for details.
